@@ -36,3 +36,66 @@ rosrun actionlib axclient.py /inference_server inference_server/InferenceAction 
 	* scores - detection scores or the confidence of the detection of the particular object as a particular class
 	* bounding_boxes - bounding box of each of the detected object
 
+## Local Testing
+
+1. Install tensorflow
+
+```bash
+pip install tensorflow==1.15.0 # version is important as we're stuck with py2
+```
+
+
+2. Install the Tensorflow Object Detection API
+
+```bash
+cd ~/
+git clone  https://github.com/tensorflow/models
+cd models
+git checkout v1.13.0 # supports py2
+
+cd research
+protoc object_detection/protos/*.proto --python_out=. # compile protobuf files
+export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim # must be in models/research (or replace both `pwd`s with absolute path)
+```
+
+You can check whether the installation was successful by running
+
+```bash
+python -c "import object_detection"
+```
+
+3. Download pre-trained weights
+
+```bash
+mkdir ~/weights && cd ~/weights
+wget http://download.tensorflow.org/models/object_detection/ssd_inception_v2_coco_11_06_2017.tar.gz
+```
+
+4. Launch the node
+From your catkin workspace, run 
+
+```bash
+roslaunch inference_server inference_server.launch \
+	 model_database_path:=$HOME/weights \
+	 tf_models_path:=$HOME/models/
+```
+
+Note, that the node expects images to be published on `/xtion/rgb/image_raw/compressed` by default. You can change this behavior by passing the `in_topic` parameter to the launchfile and pointing it to the image topic of your choice.
+
+5. Make an action call to the node:
+
+```bash
+rostopic pub /inference_server/goal inference_server/InferenceActionGoal "header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: ''
+goal_id:
+  stamp:
+    secs: 0
+    nsecs: 0
+  id: ''
+goal: {}"
+
+```
