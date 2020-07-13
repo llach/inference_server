@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
 	object_detection = ObjectDetectionAPI(model_name = inference_model, path_to_the_model_database = model_database_path, path_to_tf_models = tf_models_path)
 
-	sub_topic = "/xtion/rgb/image_raw/compressed"
-	pub_topic = "/inference_image/image_raw/compressed"
+	sub_topic = rospy.get_param('~in_topic')
+	pub_topic = rospy.get_param('~out_topic')
 	server = InferenceServer(sub_topic, pub_topic)
 	rospy.spin()

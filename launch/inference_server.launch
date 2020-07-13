@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
+
+	<!-- topic to read images from for inference -->
+	<arg name="in_topic" default="/xtion/rgb/image_raw/compressed"/> 
+	<!-- topic to publish results (anotated images) -->
+	<arg name="out_topic" default="/inference_image/image_raw/compressed"/> 
+
 	<!-- model_name defines the name of the model that you want to run inference on-->
 	<arg name="model_name" default="ssd_inception_v2_coco_11_06_2017"/>
 	<!-- tf_models_path defines the path to the folder where the TensorFlow Object Detection API is located-->
@@ -9,6 +15,8 @@
 	<arg name="model_database_path" default="/TFM/model_database"/> 
 
 	<node name="inference_server" pkg="inference_server" type="inference_server_node.py" required="true" output="screen">
+		<param name="in_topic" value="$(arg in_topic)"/>
+		<param name="out_topic" value="$(arg out_topic)"/>
 		<param name="model_name" value="$(arg model_name)"/>
         <param name="tf_models_path" value="$(arg tf_models_path)"/>
 		<param name="model_database_path" value="$(arg model_database_path)"/>
